@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Doodle - The New Duhyeon Times</title>
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&display=swap">
+    <link rel="icon" href="wordle-logo.png" type="image/png"> 
     <style>
         body {
             margin: 0;
@@ -29,8 +30,8 @@
         h1 {
             color: black; /* Change text color to black for better contrast */
             font-size: 2.5em;
-            margin-top: 0;
-            margin-bottom: -10px;
+            margin-top: 10px;
+            margin-bottom: -8px;
             letter-spacing: -1px; /* Adjust letter spacing for a tighter appearance */
             font-weight: 900; /* Make the text very thick using the 900 weight */
         }
@@ -122,11 +123,16 @@
         <div class="button-container">
             <button class="button">Subscribe</button>
             <button class="button">Log in</button>
-            <button class="button play">Play</button>
+            <button class="button play" id="playButton">Play</button>
         </div>
-        <p class="date">August 25, 2024</p> <!-- Date below the buttons -->
+        <p class="date">September 07, 2004</p> <!-- Date below the buttons -->
         <p class="datesmall">No. 0907</p>
         <p class="datesmall">Edited by Hyunjune Kim</p>
     </div>
+    <script>
+	document.getElementById('playButton').addEventListener('click',function() {
+	    window.location.href = 'play.html';
+	});
+    </script>
 </body>
 </html>
