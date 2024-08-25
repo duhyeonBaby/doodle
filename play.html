@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Doodle - The New Duhyeon Times</title>
+    <link rel="icon" href="wordle-logo.png" type="image/png"> 
+    <style>
+        body {
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+            margin: 0;
+            font-family: Arial, sans-serif;
+            background-color: #e0e0e0;
+            align-items: center;
+            justify-content: center;
+        }
+        .wordle-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            border: 2px solid black;
+            border-radius: 10px;
+            padding: 20px;
+            background-color: white;
+            width: 100%;
+            max-width: 600px;
+        }
+        .wordle-grid {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 5px;
+            margin-bottom: 20px;
+        }
+        .wordle-cell {
+            width: 50px;
+            height: 50px;
+            background-color: lightgray;
+            border: 1px solid darkgray;
+            text-align: center;
+            line-height: 50px;
+            font-size: 1.5em;
+            font-weight: bold;
+            color: black;
+        }
+        .wordle-cell.correct {
+            background-color: green;
+            color: white;
+        }
+        .wordle-cell.present {
+            background-color: yellow;
+            color: black;
+        }
+        .wordle-cell.absent {
+            background-color: gray;
+            color: white;
+        }
+        .wordle-input {
+            display: flex;
+            margin-bottom: 20px;
+            width: 100%;
+            justify-content: center;
+        }
+        .wordle-input input {
+            font-size: 1.5em;
+            text-align: center;
+            width: 300px;
+            height: 50px;
+            margin: 0 5px;
+            border: 1px solid black;
+            border-radius: 5px;
+            padding: 5px;
+        }
+        .wordle-input button {
+            font-size: 1.2em;
+            padding: 10px 20px;
+            background-color: black;
+            color: white;
+            border: 2px solid green;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s, color 0.3s;
+        }
+        .wordle-input button:hover {
+            background-color: lightgray;
+            color: darkgreen;
+        }
+        .status-message {
+            font-size: 1.5em;
+            font-weight: bold;
+            margin-bottom: 20px;
+        }
+        .play-again-button {
+            display: none; /* Hidden by default */
+            font-size: 1.2em;
+            padding: 10px 20px;
+            background-color: black;
+            color: white;
+            border: 2px solid green;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s, color 0.3s;
+        }
+        .play-again-button:hover {
+            background-color: lightgray;
+            color: darkgreen;
+        }
+    </style>
+</head>
+<body>
+    <div class="wordle-container">
+        <div class="status-message" id="status-message"></div>
+        <div class="wordle-grid"></div>
+        <div class="wordle-input">
+            <input type="text" id="wordle-input" maxlength="5" placeholder="Enter guess">
+            <button onclick="submitGuess()">Submit</button>
+        </div>
+        <button class="play-again-button" onclick="startNewGame()">Play Again</button>
+    </div>
+
+    <script>
+        const wordleWords = ['APPLE'];
+        let currentWord = '';
+        let attempts = 0;
+        const maxAttempts = 6;
+        const wordLength = 5;
+
+        function getRandomWord() {
+            return wordleWords[Math.floor(Math.random() * wordleWords.length)];
+        }
+
+        function startNewGame() {
+            currentWord = getRandomWord();
+            attempts = 0;
+            document.getElementById('status-message').textContent = ''; // Clear status message
+            document.querySelector('.play-again-button').style.display = 'none'; // Hide Play Again button
+            generateGrid();
+        }
+
+        function generateGrid() {
+            const grid = document.querySelector('.wordle-grid');
+            grid.innerHTML = '';
+            for (let i = 0; i < maxAttempts; i++) {
+                for (let j = 0; j < wordLength; j++) {
+                    const cell = document.createElement('div');
+                    cell.className = 'wordle-cell';
+                    grid.appendChild(cell);
+                }
+            }
+        }
+
+        function submitGuess() {
+            const input = document.getElementById('wordle-input');
+            const guess = input.value.toUpperCase();
+            input.value = '';
+            if (guess.length !== wordLength) {
+                document.getElementById('status-message').textContent = 'Please enter a 5-letter word.';
+                return;
+            }
+            checkGuess(guess);
+        }
+
+        function checkGuess(guess) {
+            const cells = document.querySelectorAll('.wordle-cell');
+            const startIndex = attempts * wordLength;
+            const guessArray = guess.split('');
+            const wordArray = currentWord.split('');
+
+            const wordFrequency = wordArray.reduce((freq, letter) => {
+                freq[letter] = (freq[letter] || 0) + 1;
+                return freq;
+            }, {});
+
+            for (let i = 0; i < wordLength; i++) {
+                const cell = cells[startIndex + i];
+                const letter = guessArray[i];
+                if (letter === wordArray[i]) {
+                    cell.classList.add('correct');
+                    cell.textContent = letter;
+                    wordFrequency[letter]--;
+                }
+            }
+
+            for (let i = 0; i < wordLength; i++) {
+                const cell = cells[startIndex + i];
+                const letter = guessArray[i];
+                if (!cell.classList.contains('correct')) {
+                    if (wordArray.includes(letter) && wordFrequency[letter] > 0) {
+                        cell.classList.add('present');
+                        wordFrequency[letter]--;
+                    } else {
+                        cell.classList.add('absent');
+                    }
+                    cell.textContent = letter;
+                }
+            }
+
+            attempts++;
+            if (guess === currentWord) {
+                document.getElementById('status-message').textContent = 'Congratulations! You guessed the word!';
+                document.querySelector('.play-again-button').style.display = 'block'; // Show Play Again button
+            } else if (attempts >= maxAttempts) {
+                document.getElementById('status-message').textContent = 'Game over! The correct word was ' + currentWord;
+                document.querySelector('.play-again-button').style.display = 'block'; // Show Play Again button
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', startNewGame);
+    </script>
+</body>
+</html>
